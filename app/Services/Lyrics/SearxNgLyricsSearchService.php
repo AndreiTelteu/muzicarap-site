@@ -13,8 +13,8 @@ class SearxNgLyricsSearchService
      */
     public function search(string $query): array
     {
-        $response = Http::timeout((int) config('muzicarap.crawl.request_timeout_seconds', 10))
-            ->connectTimeout(5)
+        $response = Http::timeout((int) config('muzicarap.crawl.request_timeout', 15))
+            ->connectTimeout((int) config('muzicarap.crawl.connect_timeout', 5))
             ->retry(2, 250)
             ->acceptJson()
             ->get(config('muzicarap.crawl.searxng_url', 'http://192.168.0.115:8388/search'), [
@@ -44,6 +44,7 @@ class SearxNgLyricsSearchService
             ->filter()
             ->unique('url')
             ->sortByDesc('score')
+            ->take((int) config('muzicarap.crawl.max_candidates', 5))
             ->values()
             ->all();
 

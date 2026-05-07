@@ -3,15 +3,20 @@
 namespace App\Ai\Agents;
 
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Laravel\Ai\Attributes\Model;
+use Laravel\Ai\Attributes\Provider;
 use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\Conversational;
 use Laravel\Ai\Contracts\HasStructuredOutput;
 use Laravel\Ai\Contracts\HasTools;
 use Laravel\Ai\Contracts\Tool;
+use Laravel\Ai\Enums\Lab;
 use Laravel\Ai\Messages\Message;
 use Laravel\Ai\Promptable;
 use Stringable;
 
+#[Provider(Lab::DeepSeek)]
+#[Model('deepseek-v4-pro')]
 class LyricsCleanerAgent implements Agent, Conversational, HasStructuredOutput, HasTools
 {
     use Promptable;
@@ -25,16 +30,6 @@ Remove site chrome, metadata, ads, duplicate repeated blocks, comments, and unre
 Preserve line breaks and verse ordering.
 Reject if the text is mostly article copy, tracklists, biography, or too uncertain.
 PROMPT;
-    }
-
-    public function provider(): string
-    {
-        return 'deepseek';
-    }
-
-    public function model(): string
-    {
-        return 'deepseek-v4-pro';
     }
 
     /**

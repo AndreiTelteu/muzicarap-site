@@ -16,8 +16,6 @@ class CleanLyricsWithAiAction
     {
         $response = LyricsCleanerAgent::make()->prompt(
             prompt: $this->buildPrompt($song, $candidates),
-            provider: 'deepseek',
-            model: 'deepseek-v4-pro',
         );
 
         $structured = $response->structured ?? null;
