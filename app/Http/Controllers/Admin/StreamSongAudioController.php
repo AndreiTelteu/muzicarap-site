@@ -6,10 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Song;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class StreamSongAudioController extends Controller
 {
-    public function __invoke(Song $song): Response
+    public function __invoke(Song $song): StreamedResponse
     {
         abort_unless($song->audio_path !== null, Response::HTTP_NOT_FOUND);
 

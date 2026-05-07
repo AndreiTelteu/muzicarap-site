@@ -38,8 +38,11 @@ class SongForm
                 TextInput::make('duration_seconds')
                     ->numeric(),
                 FileUpload::make('audio_path')
+                    ->disk(config('filesystems.default'))
                     ->directory('songs')
-                    ->disk(config('filesystems.default')),
+                    ->acceptedFileTypes(['audio/mpeg', 'audio/mp3', '.mp3'])
+                    ->downloadable()
+                    ->openable(),
                 Toggle::make('is_published')
                     ->default(false),
             ]);

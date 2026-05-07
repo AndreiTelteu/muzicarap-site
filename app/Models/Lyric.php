@@ -47,4 +47,10 @@ class Lyric extends Model
     {
         return $this->hasMany(LyricSegment::class)->orderBy('position');
     }
+
+    public function isSynced(): bool
+    {
+        return $this->synced_at !== null
+            && $this->segments()->whereNotNull('starts_at_ms')->exists();
+    }
 }

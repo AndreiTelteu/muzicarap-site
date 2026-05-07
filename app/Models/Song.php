@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\SongParentType;
 use Database\Factories\SongFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -68,18 +69,28 @@ class Song extends Model
         return $this->hasOne(LyricsCrawlRun::class)->latestOfMany();
     }
 
-    public function scopePublished($query)
+    public function scopePublished(Builder $query): Builder
     {
         return $query->where('is_published', true);
     }
 
-    public function scopeMissingLyrics($query)
+    public function scopeMissingLyrics(Builder $query): Builder
     {
         return $query->whereDoesntHave('lyric');
     }
 
-    public function scopeUnsyncedLyrics($query)
+    public function scopeUnsyncedLyrics(Builder $query): Builder
     {
         return $query->whereHas('lyric', fn ($lyricQuery) => $lyricQuery->whereNull('synced_at'));
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    public function hasPublicAudio(): bool
+    {
+        return $this->audio_path !== null && $this->is_published;
     }
 }

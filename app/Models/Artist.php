@@ -47,4 +47,9 @@ class Artist extends Model
     {
         return $query->where('is_published', true);
     }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
 }
