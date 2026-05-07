@@ -16,17 +16,28 @@ class LyricsCleanerAgent implements Agent, Conversational, HasStructuredOutput, 
 {
     use Promptable;
 
-    /**
-     * Get the instructions that the agent should follow.
-     */
     public function instructions(): Stringable|string
     {
-        return 'You are a helpful assistant.';
+        return <<<'PROMPT'
+You clean raw scraped lyric candidates for a Romanian rap lyrics workflow.
+Only accept content when it is clearly the lyrics for the requested song.
+Remove site chrome, metadata, ads, duplicate repeated blocks, comments, and unrelated prose.
+Preserve line breaks and verse ordering.
+Reject if the text is mostly article copy, tracklists, biography, or too uncertain.
+PROMPT;
+    }
+
+    public function provider(): string
+    {
+        return 'deepseek';
+    }
+
+    public function model(): string
+    {
+        return 'deepseek-v4-pro';
     }
 
     /**
-     * Get the list of messages comprising the conversation so far.
-     *
      * @return Message[]
      */
     public function messages(): iterable
@@ -35,8 +46,6 @@ class LyricsCleanerAgent implements Agent, Conversational, HasStructuredOutput, 
     }
 
     /**
-     * Get the tools available to the agent.
-     *
      * @return Tool[]
      */
     public function tools(): iterable
@@ -44,13 +53,14 @@ class LyricsCleanerAgent implements Agent, Conversational, HasStructuredOutput, 
         return [];
     }
 
-    /**
-     * Get the agent's structured output schema definition.
-     */
     public function schema(JsonSchema $schema): array
     {
         return [
-            'value' => $schema->string()->required(),
+            'status' => $schema->string()->enum(['accepted', 'rejected'])->required(),
+            'clean_lyrics' => $schema->string()->nullable(),
+            'source_url' => $schema->string()->nullable(),
+            'confidence_score' => $schema->number()->required(),
+            'notes' => $schema->string()->required(),
         ];
     }
 }
