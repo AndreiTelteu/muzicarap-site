@@ -75,3 +75,40 @@ it('uses the configured crawl limits and timeouts for search and fetch steps', f
             ->and($options['connect_timeout'])->toBe(4);
     });
 });
+
+it('skips blocked lyric pages without failing the crawl fetch step', function (): void {
+    $blockedRequests = 0;
+
+    Http::fake(function ($request) use (&$blockedRequests) {
+        if ($request->url() === 'https://lyrics.example.com/blocked') {
+            $blockedRequests++;
+
+            return Http::response('Forbidden', 403, [
+                'Content-Type' => 'text/html; charset=UTF-8',
+            ]);
+        }
+
+        return Http::response('<html><body>Lyrics block</body></html>', 200, [
+            'Content-Type' => 'text/html; charset=UTF-8',
+        ]);
+    });
+
+    $pages = app(LyricsCandidateFetcher::class)->fetch([
+        [
+            'url' => 'https://lyrics.example.com/blocked',
+            'title' => 'Blocked Lyrics',
+            'snippet' => 'forbidden candidate',
+            'score' => 100,
+        ],
+        [
+            'url' => 'https://lyrics.example.com/ok',
+            'title' => 'Good Lyrics',
+            'snippet' => 'usable candidate',
+            'score' => 90,
+        ],
+    ], 2);
+
+    expect($pages)->toHaveCount(1)
+        ->and($pages[0]['url'])->toBe('https://lyrics.example.com/ok')
+        ->and($blockedRequests)->toBe(1);
+});

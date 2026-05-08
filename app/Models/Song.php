@@ -84,6 +84,11 @@ class Song extends Model
         return $query->whereHas('lyric', fn ($lyricQuery) => $lyricQuery->whereNull('synced_at'));
     }
 
+    public function scopeMissingAudio(Builder $query): Builder
+    {
+        return $query->whereNull('audio_path');
+    }
+
     public function getRouteKeyName(): string
     {
         return 'slug';

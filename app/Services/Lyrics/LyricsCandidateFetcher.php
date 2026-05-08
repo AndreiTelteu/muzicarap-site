@@ -2,8 +2,11 @@
 
 namespace App\Services\Lyrics;
 
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use Throwable;
 
 class LyricsCandidateFetcher
 {
@@ -20,7 +23,14 @@ class LyricsCandidateFetcher
             ->map(function (array $candidate): ?array {
                 $response = Http::timeout((int) config('muzicarap.crawl.request_timeout', 15))
                     ->connectTimeout((int) config('muzicarap.crawl.connect_timeout', 5))
-                    ->retry(2, 500)
+                    ->retry([250, 500], when: function (Throwable $exception): bool {
+                        if ($exception instanceof ConnectionException) {
+                            return true;
+                        }
+
+                        return $exception instanceof RequestException
+                            && ($exception->response->serverError() || $exception->response->status() === 429);
+                    }, throw: false)
                     ->withHeaders([
                         'User-Agent' => 'MuzicaRapBot/1.0 (+lyrics crawl)',
                         'Accept' => 'text/html,application/xhtml+xml',

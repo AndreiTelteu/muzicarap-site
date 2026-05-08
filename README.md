@@ -19,6 +19,11 @@ MuzicaRap este o aplicație Laravel + Inertia + Vue pentru administrarea și pub
 - npm
 - o bază de date configurată în `.env`
 
+## Mediu local
+
+- pe mașina asta, binarul PHP folosit pentru comenzi CLI este `/home/andrei/.config/herd-lite/bin/php`
+- dacă `php` nu există în `PATH`, folosește explicit `/home/andrei/.config/herd-lite/bin/php artisan ...`
+
 ## Instalare locală
 
 ```bash
