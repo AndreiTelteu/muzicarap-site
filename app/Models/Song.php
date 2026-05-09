@@ -28,6 +28,7 @@ class Song extends Model
         'parent_type',
         'duration_seconds',
         'audio_path',
+        'youtube_id',
         'is_published',
     ];
 
@@ -89,6 +90,11 @@ class Song extends Model
         return $query->whereNull('audio_path');
     }
 
+    public function scopeMissingYouTubeId(Builder $query): Builder
+    {
+        return $query->whereNull('youtube_id');
+    }
+
     public function getRouteKeyName(): string
     {
         return 'slug';
@@ -97,5 +103,10 @@ class Song extends Model
     public function hasPublicAudio(): bool
     {
         return $this->audio_path !== null && $this->is_published;
+    }
+
+    public function hasPublicYouTubeVideo(): bool
+    {
+        return $this->youtube_id !== null && $this->is_published;
     }
 }

@@ -2,15 +2,15 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\SyncSongYoutubeIdJob;
+use App\Jobs\DownloadSongAudioJob;
 use App\Models\Song;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 
-#[Signature('missing:songs {--chunk=100 : Number of songs to dispatch per batch}')]
-#[Description('Queue YouTube ID sync jobs for songs that do not have youtube_id set')]
-class DownloadMissingSongsCommand extends Command
+#[Signature('missing:download {--chunk=100 : Number of songs to dispatch per batch}')]
+#[Description('Queue MP3 downloads for songs that have a YouTube ID and no audio_path set')]
+class DownloadMissingAudioCommand extends Command
 {
     public function handle(): int
     {
@@ -18,23 +18,24 @@ class DownloadMissingSongsCommand extends Command
         $dispatched = 0;
 
         Song::query()
-            ->missingYouTubeId()
+            ->whereNotNull('youtube_id')
+            ->missingAudio()
             ->select('id')
             ->orderBy('id')
             ->chunkById($chunkSize, function ($songs) use (&$dispatched): void {
                 foreach ($songs as $song) {
-                    SyncSongYoutubeIdJob::dispatch($song->getKey());
+                    DownloadSongAudioJob::dispatch($song->getKey());
                     $dispatched++;
                 }
             });
 
         if ($dispatched === 0) {
-            $this->info('No songs are missing a YouTube ID.');
+            $this->info('No songs are ready for audio download.');
 
             return self::SUCCESS;
         }
 
-        $this->info(sprintf('Dispatched %d song YouTube ID sync job(s).', $dispatched));
+        $this->info(sprintf('Dispatched %d song audio download job(s).', $dispatched));
 
         return self::SUCCESS;
     }

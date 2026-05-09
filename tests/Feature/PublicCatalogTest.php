@@ -7,7 +7,6 @@ use App\Models\Album;
 use App\Models\Artist;
 use App\Models\Lyric;
 use App\Models\Song;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function (): void {
@@ -123,12 +122,12 @@ it('shows a published album page with ordered tracks', function (): void {
         );
 });
 
-it('shows a published song page with synced lyric segments and a public audio route', function (): void {
+it('shows a published song page with synced lyric segments and a public youtube embed id', function (): void {
     $artist = Artist::factory()->create(['slug' => 'subcarpati', 'is_published' => true]);
     $song = Song::factory()->for($artist)->create([
         'title' => 'Baladă',
         'slug' => 'balada',
-        'audio_path' => 'songs/balada.mp3',
+        'youtube_id' => 'abc123xyz',
         'is_published' => true,
     ]);
 
@@ -160,24 +159,8 @@ it('shows a published song page with synced lyric segments and a public audio ro
         ->assertInertia(fn (Assert $page): Assert => $page
             ->component('Public/Songs/Show')
             ->where('song.title', $song->title)
+            ->where('song.youtube_id', 'abc123xyz')
             ->where('lyrics.is_synced', true)
             ->has('lyrics.segments', 2)
-            ->where('routes.audio', route('artists.songs.audio.stream', [$artist, $song]))
         );
-});
-
-it('streams local audio for a published song', function (): void {
-    Storage::fake('local');
-    Storage::disk('local')->put('songs/public-song.mp3', 'fake-mp3');
-
-    $artist = Artist::factory()->create(['slug' => 'ombladon', 'is_published' => true]);
-    $song = Song::factory()->for($artist)->create([
-        'slug' => 'public-song',
-        'audio_path' => 'songs/public-song.mp3',
-        'is_published' => true,
-    ]);
-
-    $this->get(route('artists.songs.audio.stream', [$artist, $song]))
-        ->assertOk()
-        ->assertHeader('content-type', 'audio/mpeg');
 });

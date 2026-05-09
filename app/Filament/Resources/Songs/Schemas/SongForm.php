@@ -43,6 +43,9 @@ class SongForm
                     ->acceptedFileTypes(['audio/mpeg', 'audio/mp3', '.mp3'])
                     ->downloadable()
                     ->openable(),
+                TextInput::make('youtube_id')
+                    ->label('YouTube ID')
+                    ->maxLength(255),
                 Toggle::make('is_published')
                     ->default(false),
             ]);

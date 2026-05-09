@@ -64,7 +64,10 @@ export type PublicAlbumPageProps = {
         cover_path: string | null;
     };
     tracks: Array<
-        Pick<PublicSongSummary, 'title' | 'slug' | 'duration_seconds' | 'url'> & {
+        Pick<
+            PublicSongSummary,
+            'title' | 'slug' | 'duration_seconds' | 'url'
+        > & {
             track_number: number | null;
         }
     >;
@@ -83,14 +86,11 @@ export type PublicSongPageProps = {
         album_url: string | null;
         duration_seconds: number | null;
         parent_type: string;
-        audio_path: string | null;
+        youtube_id: string | null;
     };
     lyrics: {
         text: string;
         is_synced: boolean;
         segments: LyricsSegment[];
-    };
-    routes: {
-        audio: string | null;
     };
 };

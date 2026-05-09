@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Models\Song;
-use App\Services\Songs\SearxNgYouTubeSearchService;
 use App\Services\Songs\YouTubeMp3Downloader;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -35,26 +34,22 @@ class DownloadSongAudioJob implements ShouldBeUnique, ShouldQueue
         return 'song-audio-download-'.$this->songId;
     }
 
-    public function handle(
-        SearxNgYouTubeSearchService $search,
-        YouTubeMp3Downloader $downloader,
-    ): void {
+    public function handle(YouTubeMp3Downloader $downloader): void
+    {
         $song = Song::query()->with('artist')->findOrFail($this->songId);
 
         if ($song->audio_path !== null) {
             return;
         }
 
-        $candidate = collect($search->search($song))->first();
-
-        if (! is_array($candidate) || ! isset($candidate['url']) || ! is_string($candidate['url'])) {
-            throw new RuntimeException('No YouTube candidate was found for the song.');
+        if (! is_string($song->youtube_id) || $song->youtube_id === '') {
+            throw new RuntimeException('No YouTube ID is set for the song.');
         }
 
         $storedPath = null;
 
         try {
-            $storedPath = $downloader->download($song, $candidate['url']);
+            $storedPath = $downloader->download($song, 'https://www.youtube.com/watch?v='.$song->youtube_id);
 
             $song->forceFill([
                 'audio_path' => $storedPath,

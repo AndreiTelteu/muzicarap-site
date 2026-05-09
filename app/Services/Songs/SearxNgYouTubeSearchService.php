@@ -35,22 +35,42 @@ class SearxNgYouTubeSearchService
                     return null;
                 }
 
+                $youtubeId = $this->extractYouTubeId($url);
+
+                if ($youtubeId === null) {
+                    return null;
+                }
+
                 $title = trim((string) Arr::get($result, 'title', ''));
                 $snippet = trim((string) Arr::get($result, 'content', ''));
 
                 return [
                     'url' => $url,
+                    'youtube_id' => $youtubeId,
                     'title' => $title,
                     'snippet' => $snippet,
                     'score' => $this->scoreCandidate($song, $url, $title, $snippet),
                 ];
             })
             ->filter()
-            ->unique('url')
+            ->unique('youtube_id')
             ->sortByDesc('score')
             ->take((int) config('muzicarap.song_audio.max_candidates', 5))
             ->values()
             ->all();
+    }
+
+    public function bestMatchingYouTubeId(Song $song): ?string
+    {
+        $candidate = collect($this->search($song))->first();
+
+        if (! is_array($candidate)) {
+            return null;
+        }
+
+        $youtubeId = Arr::get($candidate, 'youtube_id');
+
+        return is_string($youtubeId) && $youtubeId !== '' ? $youtubeId : null;
     }
 
     private function buildQuery(Song $song): string
@@ -67,6 +87,29 @@ class SearxNgYouTubeSearchService
             || $host === 'youtube.com'
             || $host === 'www.youtube.com'
             || $host === 'm.youtube.com';
+    }
+
+    private function extractYouTubeId(string $url): ?string
+    {
+        $host = Str::lower((string) parse_url($url, PHP_URL_HOST));
+        $path = trim((string) parse_url($url, PHP_URL_PATH), '/');
+        parse_str((string) parse_url($url, PHP_URL_QUERY), $query);
+
+        $youtubeId = match (true) {
+            $host === 'youtu.be', $host === 'www.youtu.be' => $path !== '' ? strtok($path, '/') : null,
+            isset($query['v']) && is_string($query['v']) => $query['v'],
+            Str::startsWith($path, 'shorts/') => Str::after($path, 'shorts/'),
+            Str::startsWith($path, 'embed/') => Str::after($path, 'embed/'),
+            default => null,
+        };
+
+        if (! is_string($youtubeId)) {
+            return null;
+        }
+
+        $youtubeId = trim(strtok($youtubeId, '/'));
+
+        return preg_match('/^[A-Za-z0-9_-]{6,}$/', $youtubeId) === 1 ? $youtubeId : null;
     }
 
     private function scoreCandidate(Song $song, string $url, string $title, string $snippet): int

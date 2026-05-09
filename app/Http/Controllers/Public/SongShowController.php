@@ -34,7 +34,7 @@ class SongShowController extends Controller
                 'album_url' => $song->album ? route('artists.albums.show', [$artist, $song->album]) : null,
                 'duration_seconds' => $song->duration_seconds,
                 'parent_type' => $song->parent_type->value,
-                'audio_path' => $song->audio_path,
+                'youtube_id' => $song->youtube_id,
             ],
             'lyrics' => [
                 'text' => $lyric?->lyrics ?? '',
@@ -47,9 +47,6 @@ class SongShowController extends Controller
                     'ends_at_ms' => $segment->ends_at_ms,
                     'is_instrumental_gap' => $segment->is_instrumental_gap,
                 ])->values()->all(),
-            ],
-            'routes' => [
-                'audio' => $song->hasPublicAudio() ? route('artists.songs.audio.stream', [$artist, $song]) : null,
             ],
         ]);
     }

@@ -26,6 +26,7 @@ class SongFactory extends Factory
             'album_id' => null,
             'artist_id' => Artist::factory(),
             'audio_path' => null,
+            'youtube_id' => null,
             'duration_seconds' => fake()->numberBetween(120, 360),
             'is_published' => true,
             'parent_type' => SongParentType::Single,
