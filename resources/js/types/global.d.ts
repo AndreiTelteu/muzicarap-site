@@ -1,5 +1,31 @@
 import type { Auth } from '@/types/auth';
 
+declare global {
+    interface Window {
+        YT?: {
+            Player: new (
+                element: HTMLElement,
+                options: Record<string, unknown>,
+            ) => {
+                destroy: () => void;
+                getCurrentTime: () => number;
+                getDuration: () => number;
+                loadVideoById: (videoId: string, startSeconds?: number) => void;
+                pauseVideo: () => void;
+                playVideo: () => void;
+                seekTo: (seconds: number, allowSeekAhead: boolean) => void;
+                stopVideo: () => void;
+            };
+            PlayerState: {
+                ENDED: number;
+                PAUSED: number;
+                PLAYING: number;
+            };
+        };
+        onYouTubeIframeAPIReady?: () => void;
+    }
+}
+
 // Extend ImportMeta interface for Vite...
 declare module 'vite/client' {
     interface ImportMetaEnv {

@@ -1,57 +1,135 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
 
+import PublicArtistCard from '@/components/public/PublicArtistCard.vue';
+import PublicSongCard from '@/components/public/PublicSongCard.vue';
 import PublicLayout from '@/components/PublicLayout.vue';
+import artists from '@/routes/artists';
 import type { PublicHomePageProps } from '@/types';
 
 const props = defineProps<PublicHomePageProps>();
 
-const formatDuration = (seconds: number | null): string => {
-    if (seconds === null) {
-        return 'Durată necunoscută';
-    }
-
-    const minutes = Math.floor(seconds / 60);
-    const remainder = seconds % 60;
-
-    return `${minutes}:${remainder.toString().padStart(2, '0')}`;
-};
+const heroSong = props.latestSongs[0] ?? null;
+const stackedSongs = props.latestSongs.slice(1, 4);
 </script>
 
 <template>
     <PublicLayout
-        title="Ultimele piese publicate"
-        subtitle="Ascultă cele mai recente lansări din catalogul public și intră direct pe pagina fiecărei piese."
+        eyebrow="Mobile First Remake"
+        title="Muzica rap romaneasca, ca o aplicatie premium in palma ta"
+        subtitle="Feed cinematic, player YouTube integrat, versuri sincronizate si discovery instant din bottom sheet."
     >
-        <section v-if="props.latestSongs.length > 0" class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            <article
-                v-for="song in props.latestSongs"
-                :key="`${song.artist.slug}-${song.slug}`"
-                class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/20 transition hover:-translate-y-1 hover:border-amber-400/40"
+        <div class="space-y-10">
+            <section
+                v-if="heroSong"
+                class="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]"
             >
-                <div class="mb-4 flex items-center justify-between gap-3 text-xs uppercase tracking-[0.25em] text-zinc-400">
-                    <span>{{ song.parent_type }}</span>
-                    <span>{{ formatDuration(song.duration_seconds) }}</span>
-                </div>
+                <PublicSongCard :song="heroSong" priority="feature" />
 
-                <Link :href="song.url" class="block text-2xl font-semibold text-white transition hover:text-amber-300">
-                    {{ song.title }}
-                </Link>
+                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+                    <article
+                        v-for="song in stackedSongs"
+                        :key="song.url"
+                        class="overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.05] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.3)] backdrop-blur-xl"
+                    >
+                        <p
+                            class="text-xs font-semibold tracking-[0.3em] text-white/38 uppercase"
+                        >
+                            Fresh Drop
+                        </p>
+                        <Link
+                            :href="song.url"
+                            class="mt-4 block text-2xl font-semibold tracking-tight text-white"
+                        >
+                            {{ song.title }}
+                        </Link>
+                        <p class="mt-2 text-sm text-white/55">
+                            {{ song.artist.name }} · {{ song.parent_type }}
+                        </p>
+                    </article>
 
-                <div class="mt-3 space-y-2 text-sm text-zinc-300">
-                    <Link :href="song.artist.url ?? '#'" class="font-medium text-amber-400 hover:text-amber-300">
-                        {{ song.artist.name }}
+                    <Link
+                        :href="artists.index.url()"
+                        class="flex min-h-[11rem] flex-col justify-between rounded-[2rem] border border-amber-300/18 bg-[linear-gradient(180deg,rgba(251,191,36,0.14),rgba(255,255,255,0.03))] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.3)]"
+                    >
+                        <span
+                            class="text-xs font-semibold tracking-[0.3em] text-amber-100/68 uppercase"
+                            >Explore</span
+                        >
+                        <div>
+                            <p
+                                class="text-2xl font-semibold tracking-tight text-white"
+                            >
+                                Intra in universul artistilor
+                            </p>
+                            <p class="mt-2 text-sm leading-6 text-white/56">
+                                Deschide catalogul si navigheaza ca intr-o app
+                                de streaming.
+                            </p>
+                        </div>
                     </Link>
-
-                    <p v-if="song.album">
-                        Album: {{ song.album }}
-                    </p>
                 </div>
-            </article>
-        </section>
+            </section>
 
-        <section v-else class="rounded-3xl border border-dashed border-white/15 bg-white/5 p-10 text-zinc-300">
-            Nu există încă piese publicate.
-        </section>
+            <section class="space-y-5">
+                <div class="flex items-end justify-between gap-4">
+                    <div>
+                        <p
+                            class="text-xs font-semibold tracking-[0.3em] text-white/38 uppercase"
+                        >
+                            Latest Tracks
+                        </p>
+                        <h2
+                            class="mt-2 text-2xl font-semibold tracking-tight text-white"
+                        >
+                            Drop-uri noi
+                        </h2>
+                    </div>
+                </div>
+
+                <div
+                    v-if="props.latestSongs.length > 0"
+                    class="grid gap-5 md:grid-cols-2 xl:grid-cols-3"
+                >
+                    <PublicSongCard
+                        v-for="song in props.latestSongs"
+                        :key="song.url"
+                        :song="song"
+                    />
+                </div>
+            </section>
+
+            <section class="space-y-5">
+                <div class="flex items-end justify-between gap-4">
+                    <div>
+                        <p
+                            class="text-xs font-semibold tracking-[0.3em] text-white/38 uppercase"
+                        >
+                            Artists
+                        </p>
+                        <h2
+                            class="mt-2 text-2xl font-semibold tracking-tight text-white"
+                        >
+                            Vocile care conduc feed-ul
+                        </h2>
+                    </div>
+
+                    <Link
+                        :href="artists.index.url()"
+                        class="text-sm text-white/55"
+                    >
+                        Vezi toti artistii
+                    </Link>
+                </div>
+
+                <div class="grid grid-cols-2 gap-5 lg:grid-cols-4">
+                    <PublicArtistCard
+                        v-for="artist in props.featuredArtists"
+                        :key="artist.slug"
+                        :artist="artist"
+                    />
+                </div>
+            </section>
+        </div>
     </PublicLayout>
 </template>

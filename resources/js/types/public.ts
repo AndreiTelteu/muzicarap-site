@@ -7,6 +7,8 @@ export type CatalogLink = {
 export type PublicArtistSummary = {
     name: string;
     slug: string;
+    bio?: string | null;
+    image_url?: string | null;
     url?: string;
 };
 
@@ -15,7 +17,12 @@ export type PublicSongSummary = {
     slug: string;
     parent_type: string;
     album: string | null;
+    album_slug?: string | null;
+    album_url?: string | null;
+    cover_url?: string | null;
     duration_seconds: number | null;
+    youtube_id?: string | null;
+    player_url?: string;
     url: string;
     created_at?: string | null;
     artist?: PublicArtistSummary;
@@ -26,7 +33,10 @@ export type PublicAlbumSummary = {
     slug: string;
     type: string;
     release_date: string | null;
-    songs_count: number;
+    songs_count: number | null;
+    cover_url?: string | null;
+    description?: string | null;
+    artist?: PublicArtistSummary;
     url: string;
 };
 
@@ -36,37 +46,45 @@ export type PublicHomePageProps = {
             artist: PublicArtistSummary;
         }
     >;
+    featuredArtists: Array<
+        PublicArtistSummary & {
+            songs_count: number;
+            albums_count: number;
+        }
+    >;
+};
+
+export type PublicArtistsIndexPageProps = {
+    artists: Array<
+        PublicArtistSummary & {
+            songs_count: number;
+            albums_count: number;
+        }
+    >;
 };
 
 export type PublicArtistPageProps = {
-    artist: {
-        name: string;
-        slug: string;
-        bio: string | null;
-        image_path: string | null;
-    };
+    artist: PublicArtistSummary;
     albums: PublicAlbumSummary[];
     songs: PublicSongSummary[];
 };
 
 export type PublicAlbumPageProps = {
-    artist: {
-        name: string;
-        slug: string;
-        url: string;
-    };
-    album: {
-        title: string;
-        slug: string;
-        type: string;
-        description: string | null;
-        release_date: string | null;
-        cover_path: string | null;
-    };
+    artist: PublicArtistSummary;
+    album: PublicAlbumSummary;
     tracks: Array<
         Pick<
             PublicSongSummary,
-            'title' | 'slug' | 'duration_seconds' | 'url'
+            | 'title'
+            | 'slug'
+            | 'duration_seconds'
+            | 'url'
+            | 'cover_url'
+            | 'youtube_id'
+            | 'artist'
+            | 'album'
+            | 'album_url'
+            | 'parent_type'
         > & {
             track_number: number | null;
         }
@@ -74,23 +92,37 @@ export type PublicAlbumPageProps = {
 };
 
 export type PublicSongPageProps = {
-    artist: {
-        name: string;
-        slug: string;
-        url: string;
-    };
-    song: {
-        title: string;
-        slug: string;
-        album: string | null;
-        album_url: string | null;
-        duration_seconds: number | null;
-        parent_type: string;
-        youtube_id: string | null;
-    };
+    artist: PublicArtistSummary;
+    song: PublicSongSummary;
     lyrics: {
         text: string;
         is_synced: boolean;
         segments: LyricsSegment[];
     };
+};
+
+export type PublicSearchResults = {
+    query: string;
+    artists: PublicArtistSummary[];
+    albums: PublicAlbumSummary[];
+    songs: PublicSongSummary[];
+};
+
+export type FavoriteSongEntry = {
+    key: string;
+    title: string;
+    slug: string;
+    url: string;
+    parent_type: string;
+    album: string | null;
+    album_url: string | null;
+    cover_url: string | null;
+    duration_seconds: number | null;
+    youtube_id: string | null;
+    player_url: string;
+    artist: PublicArtistSummary;
+};
+
+export type PublicPlayerSong = FavoriteSongEntry & {
+    lyrics: PublicSongPageProps['lyrics'];
 };

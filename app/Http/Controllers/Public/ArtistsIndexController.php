@@ -4,35 +4,21 @@ namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
 use App\Models\Artist;
-use App\Models\Song;
 use App\Support\PublicCatalogData;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class HomeController extends Controller
+class ArtistsIndexController extends Controller
 {
     public function __invoke(): Response
     {
-        $latestSongs = Song::query()
-            ->published()
-            ->whereHas('artist', fn ($query) => $query->published())
-            ->with(['artist', 'album'])
-            ->latest()
-            ->limit(12)
-            ->get()
-            ->map(fn (Song $song): array => PublicCatalogData::songSummary($song))
-            ->values()
-            ->all();
-
-        $featuredArtists = Artist::query()
+        $artists = Artist::query()
             ->published()
             ->withCount([
                 'songs' => fn ($query) => $query->published(),
                 'albums' => fn ($query) => $query->whereHas('songs', fn ($songQuery) => $songQuery->published()),
             ])
-            ->orderByDesc('songs_count')
             ->orderBy('name')
-            ->limit(8)
             ->get()
             ->map(fn (Artist $artist): array => [
                 ...PublicCatalogData::artistSummary($artist),
@@ -42,9 +28,8 @@ class HomeController extends Controller
             ->values()
             ->all();
 
-        return Inertia::render('Home', [
-            'latestSongs' => $latestSongs,
-            'featuredArtists' => $featuredArtists,
+        return Inertia::render('Public/Artists/Index', [
+            'artists' => $artists,
         ]);
     }
 }

@@ -6,16 +6,24 @@ use App\Http\Controllers\Admin\ResegmentSongLyricsController;
 use App\Http\Controllers\Admin\StreamSongAudioController;
 use App\Http\Controllers\Public\AlbumShowController;
 use App\Http\Controllers\Public\ArtistShowController;
+use App\Http\Controllers\Public\ArtistsIndexController;
+use App\Http\Controllers\Public\FavoritesIndexController;
 use App\Http\Controllers\Public\HomeController;
+use App\Http\Controllers\Public\PublicSearchController;
+use App\Http\Controllers\Public\SongPlayerController;
 use App\Http\Controllers\Public\SongShowController;
 use App\Http\Middleware\EnsureAdminAccess;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
+Route::get('/artisti', ArtistsIndexController::class)->name('artists.index');
+Route::get('/favorite', FavoritesIndexController::class)->name('favorites.index');
+Route::get('/cauta', PublicSearchController::class)->name('search');
 
 Route::scopeBindings()->group(function (): void {
     Route::get('/artisti/{artist}', ArtistShowController::class)->name('artists.show');
     Route::get('/artisti/{artist}/albume/{album}', AlbumShowController::class)->name('artists.albums.show');
+    Route::get('/artisti/{artist}/piese/{song}/player', SongPlayerController::class)->name('artists.songs.player');
     Route::get('/artisti/{artist}/piese/{song}', SongShowController::class)->name('artists.songs.show');
 });
 

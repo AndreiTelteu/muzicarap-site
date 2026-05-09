@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Album;
 use App\Models\Artist;
 use App\Models\Song;
+use App\Support\PublicCatalogData;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -21,25 +22,11 @@ class AlbumShowController extends Controller
         ]);
 
         return Inertia::render('Public/Albums/Show', [
-            'artist' => [
-                'name' => $artist->name,
-                'slug' => $artist->slug,
-                'url' => route('artists.show', $artist),
-            ],
-            'album' => [
-                'title' => $album->title,
-                'slug' => $album->slug,
-                'type' => $album->type->value,
-                'description' => $album->description,
-                'release_date' => $album->release_date?->toDateString(),
-                'cover_path' => $album->cover_path,
-            ],
+            'artist' => PublicCatalogData::artistSummary($artist),
+            'album' => PublicCatalogData::albumSummary($artist, $album),
             'tracks' => $album->songs->map(fn (Song $song): array => [
-                'title' => $song->title,
-                'slug' => $song->slug,
+                ...PublicCatalogData::songSummary($song),
                 'track_number' => $song->track_number,
-                'duration_seconds' => $song->duration_seconds,
-                'url' => route('artists.songs.show', [$artist, $song]),
             ])->values()->all(),
         ]);
     }
