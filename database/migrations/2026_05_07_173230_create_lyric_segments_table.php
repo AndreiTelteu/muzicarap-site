@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('lyric_segments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('lyric_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('lyric_id');
             $table->unsignedInteger('position');
             $table->text('text');
             $table->unsignedInteger('starts_at_ms')->nullable();

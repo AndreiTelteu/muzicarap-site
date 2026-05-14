@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('songs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('artist_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('album_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('artist_id');
+            $table->foreignId('album_id')->nullable();
             $table->string('title');
             $table->string('slug');
             $table->unsignedInteger('track_number')->nullable();

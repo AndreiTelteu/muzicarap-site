@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('lyrics_crawl_runs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('song_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('song_id');
             $table->enum('status', ['queued', 'searching', 'crawling', 'cleaning', 'stored', 'failed'])->default('queued')->index();
             $table->string('search_query');
             $table->json('candidate_urls')->nullable();

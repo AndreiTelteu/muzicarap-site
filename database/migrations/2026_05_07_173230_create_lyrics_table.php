@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('lyrics', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('song_id')->unique()->constrained()->cascadeOnDelete();
+            $table->foreignId('song_id')->unique();
             $table->longText('lyrics')->default('');
             $table->text('external_source_url')->nullable();
             $table->enum('source_status', ['manual', 'queued', 'crawled', 'cleaned', 'failed'])->default('manual')->index();

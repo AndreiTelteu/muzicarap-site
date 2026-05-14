@@ -1,0 +1,44 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - "8444:8000"
+    volumes:
+      - ./:/app
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+    depends_on:
+      - db
+    working_dir: /app
+    command:
+      - sh
+      - -lc
+      - |
+        set -e
+        getent group ${PGID} >/dev/null 2>&1 || groupadd -g ${PGID} crm
+        id -u app >/dev/null 2>&1 || useradd -u ${PUID} -g ${PGID} -m -s /bin/sh app
+        usermod -g ${PGID} app
+        chown -R ${PUID}:${PGID} /app/storage /app/bootstrap/cache /data /config
+        exec setpriv --reuid=${PUID} --regid=${PGID} --clear-groups frankenphp php-server --root /app/public --listen :8000
+    tty: true
+
+  db:
+    image: mariadb:11
+    container_name: muzicarap-mariadb
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: muzicarap
+      MYSQL_USER: muzicarap_user
+      MYSQL_PASSWORD: muzicarap_password
+      MYSQL_ROOT_PASSWORD: root_password
+    ports:
+      - '33012:3306'
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+volumes:
+  mariadb_data:
+
