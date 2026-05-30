@@ -4,6 +4,8 @@ namespace App\Actions\Lyrics;
 
 use App\Ai\Agents\LyricsCleanerAgent;
 use App\Models\Song;
+use Illuminate\Support\Facades\Log;
+use JsonException;
 use RuntimeException;
 
 class CleanLyricsWithAiAction
@@ -14,8 +16,16 @@ class CleanLyricsWithAiAction
      */
     public function handle(Song $song, array $candidates): array
     {
+        $prompt = $this->buildPrompt($song, $candidates);
+
+        Log::info('Lyrics cleaner prompt prepared.', [
+            'song_id' => $song->getKey(),
+            'candidate_count' => count($candidates),
+            'prompt_length' => mb_strlen($prompt),
+        ]);
+
         $response = LyricsCleanerAgent::make()->prompt(
-            prompt: $this->buildPrompt($song, $candidates),
+            prompt: $prompt,
         );
 
         $structured = $response->structured ?? null;
@@ -35,14 +45,26 @@ class CleanLyricsWithAiAction
 
     /**
      * @param  list<array{url:string,title:string,snippet:string,text:string}>  $candidates
+     *
+     * @throws JsonException
      */
     private function buildPrompt(Song $song, array $candidates): string
     {
-        return json_encode([
-            'artist' => $song->artist->name,
-            'song' => $song->title,
-            'album' => $song->album?->title,
-            'candidates' => $candidates,
-        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?: '';
+        try {
+            return json_encode([
+                'artist' => $song->artist->name,
+                'song' => $song->title,
+                'album' => $song->album?->title,
+                'candidates' => $candidates,
+            ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE | JSON_THROW_ON_ERROR);
+        } catch (JsonException $exception) {
+            Log::warning('Lyrics cleaner prompt encoding failed.', [
+                'song_id' => $song->getKey(),
+                'candidate_count' => count($candidates),
+                'error' => $exception->getMessage(),
+            ]);
+
+            throw $exception;
+        }
     }
 }

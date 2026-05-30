@@ -5,6 +5,7 @@ namespace App\Ai\Agents;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Attributes\Model;
 use Laravel\Ai\Attributes\Provider;
+use Laravel\Ai\Attributes\Timeout;
 use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\Conversational;
 use Laravel\Ai\Contracts\HasStructuredOutput;
@@ -17,6 +18,7 @@ use Stringable;
 
 #[Provider(Lab::DeepSeek)]
 #[Model('deepseek-v4-pro')]
+#[Timeout(300)]
 class LyricsCleanerAgent implements Agent, Conversational, HasStructuredOutput, HasTools
 {
     use Promptable;
