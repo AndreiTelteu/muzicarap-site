@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Public;
 
+use App\Enums\SongParentType;
 use App\Http\Controllers\Controller;
 use App\Models\Artist;
 use App\Models\Song;
@@ -23,7 +24,13 @@ class ArtistShowController extends Controller
                 ])
                 ->orderByDesc('release_date')
                 ->orderBy('title'),
-            'songs' => fn ($query) => $query->published()->with('album')->latest()->orderBy('track_number'),
+            'songs' => fn ($query) => $query
+                ->published()
+                ->whereNull('album_id')
+                ->where('parent_type', SongParentType::Single)
+                ->with('album')
+                ->latest()
+                ->orderBy('track_number'),
         ]);
 
         return Inertia::render('Public/Artists/Show', [

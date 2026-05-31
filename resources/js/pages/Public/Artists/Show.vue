@@ -90,35 +90,6 @@ const props = defineProps<PublicArtistPageProps>();
                         <p
                             class="text-xs font-semibold tracking-[0.3em] text-white/38 uppercase"
                         >
-                            Songs
-                        </p>
-                        <h2
-                            class="mt-2 text-2xl font-semibold tracking-tight text-white"
-                        >
-                            Piese publice
-                        </h2>
-                    </div>
-                    <span class="text-sm text-white/45"
-                        >{{ props.songs.length }} rezultate</span
-                    >
-                </div>
-
-                <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                    <PublicSongCard
-                        v-for="song in props.songs"
-                        :key="song.url"
-                        :show-artist="false"
-                        :song="song"
-                    />
-                </div>
-            </section>
-
-            <section class="space-y-5">
-                <div class="flex items-end justify-between gap-4">
-                    <div>
-                        <p
-                            class="text-xs font-semibold tracking-[0.3em] text-white/38 uppercase"
-                        >
                             Albums
                         </p>
                         <h2
@@ -161,6 +132,35 @@ const props = defineProps<PublicArtistPageProps>();
                             </p>
                         </div>
                     </Link>
+                </div>
+            </section>
+
+            <section class="space-y-5">
+                <div class="flex items-end justify-between gap-4">
+                    <div>
+                        <p
+                            class="text-xs font-semibold tracking-[0.3em] text-white/38 uppercase"
+                        >
+                            Songs
+                        </p>
+                        <h2
+                            class="mt-2 text-2xl font-semibold tracking-tight text-white"
+                        >
+                            Piese publice
+                        </h2>
+                    </div>
+                    <span class="text-sm text-white/45"
+                        >{{ props.songs.length }} rezultate</span
+                    >
+                </div>
+
+                <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                    <PublicSongCard
+                        v-for="song in props.songs"
+                        :key="song.url"
+                        :show-artist="false"
+                        :song="song"
+                    />
                 </div>
             </section>
         </div>

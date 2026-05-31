@@ -93,11 +93,19 @@ it('shows a published artist page with public albums and songs', function (): vo
         'type' => AlbumType::Album,
     ]);
 
-    $song = Song::factory()->for($artist)->for($album)->create([
-        'title' => 'Piesă publică',
-        'slug' => 'piesa-publica',
+    Song::factory()->for($artist)->for($album)->create([
+        'title' => 'Piesă de pe album',
+        'slug' => 'piesa-de-pe-album',
         'parent_type' => SongParentType::Album,
         'track_number' => 3,
+        'is_published' => true,
+    ]);
+
+    $soloSong = Song::factory()->for($artist)->create([
+        'title' => 'Piesă solo publică',
+        'slug' => 'piesa-solo-publica',
+        'parent_type' => SongParentType::Single,
+        'album_id' => null,
         'is_published' => true,
     ]);
 
@@ -116,7 +124,7 @@ it('shows a published artist page with public albums and songs', function (): vo
             ->has('albums', 1)
             ->where('albums.0.title', $album->title)
             ->has('songs', 1)
-            ->where('songs.0.title', $song->title)
+            ->where('songs.0.title', $soloSong->title)
         );
 });
 
