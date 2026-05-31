@@ -27,7 +27,6 @@ class PublicSearchController extends Controller
 
         $artists = Artist::query()
             ->published()
-            ->with('latestPublishedSongWithThumbnail')
             ->where('name', 'like', "%{$query}%")
             ->orderBy('name')
             ->limit(8)
@@ -39,7 +38,7 @@ class PublicSearchController extends Controller
         $albums = Album::query()
             ->whereHas('artist', fn ($queryBuilder) => $queryBuilder->published())
             ->whereHas('songs', fn ($queryBuilder) => $queryBuilder->published())
-            ->with(['artist.latestPublishedSongWithThumbnail', 'latestPublishedSongWithThumbnail'])
+            ->with('artist')
             ->where('title', 'like', "%{$query}%")
             ->orderByDesc('release_date')
             ->orderBy('title')

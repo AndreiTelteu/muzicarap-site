@@ -121,12 +121,6 @@ const playSong = async (): Promise<void> => {
                 class="flex items-center justify-between gap-3 text-sm text-white/48"
             >
                 <span>{{ formatDuration(song.duration_seconds) }}</span>
-                <span
-                    v-if="song.youtube_id"
-                    class="rounded-full bg-white/8 px-2.5 py-1 text-[0.68rem] font-medium tracking-[0.24em] uppercase"
-                >
-                    YouTube Ready
-                </span>
             </div>
         </div>
     </article>

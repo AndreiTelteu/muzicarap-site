@@ -78,8 +78,12 @@ const icon = computed(() => {
 <template>
     <svg
         aria-hidden="true"
-        class="h-5 w-5"
+        :class="[
+            'h-5 w-5 shrink-0',
+            props.name === 'artists' ? 'translate-y-px' : '',
+        ]"
         fill="none"
+        style="overflow: visible"
         stroke="currentColor"
         stroke-linecap="round"
         stroke-linejoin="round"

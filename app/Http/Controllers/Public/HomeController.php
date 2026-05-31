@@ -26,7 +26,6 @@ class HomeController extends Controller
 
         $featuredArtists = Artist::query()
             ->published()
-            ->with('latestPublishedSongWithThumbnail')
             ->withCount([
                 'songs' => fn ($query) => $query->published(),
                 'albums' => fn ($query) => $query->whereHas('songs', fn ($songQuery) => $songQuery->published()),
