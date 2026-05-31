@@ -15,9 +15,7 @@ const stackedSongs = props.latestSongs.slice(1, 4);
 
 <template>
     <PublicLayout
-        eyebrow="Mobile First Remake"
-        title="Muzica rap romaneasca, ca o aplicatie premium in palma ta"
-        subtitle="Feed cinematic, player YouTube integrat, versuri sincronizate si discovery instant din bottom sheet."
+        title="Muzica rap romaneasca"
     >
         <div class="space-y-10">
             <section

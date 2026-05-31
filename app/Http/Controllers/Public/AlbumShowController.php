@@ -18,6 +18,8 @@ class AlbumShowController extends Controller
         abort_unless($album->artist_id === $artist->id, 404);
 
         $album->load([
+            'latestPublishedSongWithThumbnail',
+            'artist.latestPublishedSongWithThumbnail',
             'songs' => fn ($query) => $query->published()->orderByRaw('track_number is null')->orderBy('track_number')->orderBy('title'),
         ]);
 

@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
-use App\Models\Song;
 use App\Enums\SongParentType;
 use App\Models\Artist;
+use App\Models\Song;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -26,6 +26,7 @@ class SongFactory extends Factory
             'album_id' => null,
             'artist_id' => Artist::factory(),
             'audio_path' => null,
+            'image_path' => null,
             'youtube_id' => null,
             'duration_seconds' => fake()->numberBetween(120, 360),
             'is_published' => true,

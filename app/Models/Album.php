@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Album extends Model
 {
@@ -46,6 +47,14 @@ class Album extends Model
     public function songs(): HasMany
     {
         return $this->hasMany(Song::class);
+    }
+
+    public function latestPublishedSongWithThumbnail(): HasOne
+    {
+        return $this->hasOne(Song::class)
+            ->published()
+            ->whereNotNull('image_path')
+            ->latestOfMany('created_at');
     }
 
     public function getRouteKeyName(): string

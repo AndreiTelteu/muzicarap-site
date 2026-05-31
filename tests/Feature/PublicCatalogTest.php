@@ -7,6 +7,7 @@ use App\Models\Album;
 use App\Models\Artist;
 use App\Models\Lyric;
 use App\Models\Song;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function (): void {
@@ -206,6 +207,61 @@ it('shows a published song page with synced lyric segments and a public youtube 
             ->where('lyrics.is_synced', true)
             ->has('lyrics.segments', 2)
         );
+});
+
+it('uses the latest song thumbnail for artist artwork and a song thumbnail for album artwork', function (): void {
+    Storage::fake('local');
+
+    config()->set('filesystems.default', 'local');
+
+    $artist = Artist::factory()->create([
+        'name' => 'Artwork Artist',
+        'slug' => 'artwork-artist',
+        'is_published' => true,
+    ]);
+
+    $album = Album::factory()->for($artist)->create([
+        'title' => 'Artwork Album',
+        'slug' => 'artwork-album',
+        'type' => AlbumType::Album,
+        'cover_path' => null,
+    ]);
+
+    Song::factory()->for($artist)->for($album)->create([
+        'title' => 'Album older',
+        'slug' => 'album-older',
+        'track_number' => 1,
+        'parent_type' => SongParentType::Album,
+        'image_path' => 'songs/thumbnails/'.$artist->slug.'/album-older.jpg',
+        'created_at' => now()->subDays(2),
+        'is_published' => true,
+    ]);
+
+    $albumThumbnailSong = Song::factory()->for($artist)->for($album)->create([
+        'title' => 'Album newer',
+        'slug' => 'album-newer',
+        'track_number' => 2,
+        'parent_type' => SongParentType::Album,
+        'image_path' => 'songs/thumbnails/'.$artist->slug.'/album-newer.jpg',
+        'created_at' => now()->subDay(),
+        'is_published' => true,
+    ]);
+
+    $artistThumbnailSong = Song::factory()->for($artist)->create([
+        'title' => 'Artist latest',
+        'slug' => 'artist-latest',
+        'parent_type' => SongParentType::Single,
+        'album_id' => null,
+        'image_path' => 'songs/thumbnails/'.$artist->slug.'/artist-latest.jpg',
+        'created_at' => now(),
+        'is_published' => true,
+    ]);
+
+    $artistSummary = \App\Support\PublicCatalogData::artistSummary($artist);
+    $albumSummary = \App\Support\PublicCatalogData::albumSummary($artist, $album);
+
+    expect($artistSummary['image_url'])->toContain($artistThumbnailSong->image_path)
+        ->and($albumSummary['cover_url'])->toContain($albumThumbnailSong->image_path);
 });
 
 it('returns grouped public search results for songs artists and albums', function (): void {

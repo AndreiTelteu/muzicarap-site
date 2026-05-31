@@ -28,6 +28,7 @@ class Song extends Model
         'parent_type',
         'duration_seconds',
         'audio_path',
+        'image_path',
         'youtube_id',
         'is_published',
     ];

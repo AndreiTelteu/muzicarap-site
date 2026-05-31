@@ -17,8 +17,10 @@ class ArtistShowController extends Controller
         abort_unless($artist->is_published, 404);
 
         $artist->load([
+            'latestPublishedSongWithThumbnail',
             'albums' => fn ($query) => $query
                 ->whereHas('songs', fn ($songQuery) => $songQuery->published())
+                ->with('latestPublishedSongWithThumbnail')
                 ->withCount([
                     'songs' => fn ($songQuery) => $songQuery->published(),
                 ])

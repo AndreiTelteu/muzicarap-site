@@ -15,11 +15,14 @@ class PublicCatalogData
      */
     public static function artistSummary(Artist $artist): array
     {
+        $artist->loadMissing('latestPublishedSongWithThumbnail');
+
         return [
             'name' => $artist->name,
             'slug' => $artist->slug,
             'bio' => $artist->bio,
-            'image_url' => self::mediaUrl($artist->image_path),
+            'image_url' => self::mediaUrl($artist->latestPublishedSongWithThumbnail?->image_path)
+                ?? self::mediaUrl($artist->image_path),
             'url' => route('artists.show', $artist),
         ];
     }
@@ -29,13 +32,16 @@ class PublicCatalogData
      */
     public static function albumSummary(Artist $artist, Album $album, ?int $songsCount = null): array
     {
+        $album->loadMissing('latestPublishedSongWithThumbnail');
+
         return [
             'title' => $album->title,
             'slug' => $album->slug,
             'type' => $album->type->value,
             'release_date' => $album->release_date?->toDateString(),
             'songs_count' => $songsCount,
-            'cover_url' => self::mediaUrl($album->cover_path),
+            'cover_url' => self::mediaUrl($album->cover_path)
+                ?? self::mediaUrl($album->latestPublishedSongWithThumbnail?->image_path),
             'description' => $album->description,
             'artist' => [
                 'name' => $artist->name,
@@ -115,7 +121,8 @@ class PublicCatalogData
 
     public static function songArtworkUrl(Song $song): ?string
     {
-        return self::mediaUrl($song->album?->cover_path)
+        return self::mediaUrl($song->image_path)
+            ?? self::mediaUrl($song->album?->cover_path)
             ?? self::mediaUrl($song->artist->image_path);
     }
 }
